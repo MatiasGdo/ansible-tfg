@@ -32,7 +32,7 @@
     - name: INICIAR - Servicio Docker
       systemd:
         name: docker
-        state: present
+        state: started
 
     - name: INICIAR - Contenedores
       docker_compose:
