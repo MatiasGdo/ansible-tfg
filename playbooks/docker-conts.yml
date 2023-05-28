@@ -12,7 +12,7 @@
       shell: docker stop $(docker ps -aq) && docker rm $(docker ps -aq) && docker-compose down --remove-orphans || true
 
     - name: COMPROBACION - Eliminar redes antiguas.
-      shell:  docker network prune -f  || true
+      shell: docker network prune -f  || true
 
     - name: COMPROBACION - Salir de Docker Swarm
       shell: docker swarm leave --force || true
@@ -29,6 +29,11 @@
         dest: /home/ansible/docker-compose.yml
         mode: '0777'
 
+    - name: INICIAR - Servicio Docker
+      	systemd:
+          name: docker
+          state: present
+          
     - name: INICIAR - Contenedores
       docker_compose:
         project_src: /home/ansible

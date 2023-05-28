@@ -14,9 +14,7 @@
     - name: INSTALAR - Paquetes requeridos
       dnf:
         name:
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
+          - python3-pip
         state: latest
         update_cache: true
 
