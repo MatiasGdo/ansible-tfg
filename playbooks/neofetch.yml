@@ -1,0 +1,12 @@
+---
+- hosts: maquinas_virtuales
+  become: true
+  become_user: root
+
+  tasks:
+
+    - name: INSTALAR - Neofetch
+      dnf: name=neofetch
+    
+    - name: EJECUTAR - Neofetch
+      shell: neofetch

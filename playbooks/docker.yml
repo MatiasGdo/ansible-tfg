@@ -1,0 +1,49 @@
+- name: Instalar Docker
+  hosts: maquinas_virtuales
+  become: true
+  become_user: root
+  tasks:
+
+    - name: INSTALAR - Repositorio EPEL
+      dnf:
+        name:
+          - epel-release
+        state: latest
+        update_cache: true
+
+    - name: INSTALAR - Paquetes requeridos
+      dnf:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: latest
+        update_cache: true
+
+    - name: AÑADIR - Clave GPG Docker
+      rpm_key:
+        key: https://download.docker.com/linux/centos/gpg
+        state: present
+    
+    - name: AÑADIR - Repositorio Docker
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: 0644
+
+    - name: INSTALAR - Docker CE
+      dnf:
+        name: docker-ce
+        state: present
+
+    - name: INICIAR - Servicio Docker
+      block:
+        - name: Iniciar Docker
+          shell: systemctl start docker
+
+    - name: INSTALAR - Modulo Docker Python
+      pip:
+        name: 
+        - docker
+        - docker-compose
+
