@@ -30,10 +30,10 @@
         mode: '0777'
 
     - name: INICIAR - Servicio Docker
-      	systemd:
-          name: docker
-          state: present
-          
+      systemd:
+        name: docker
+        state: present
+
     - name: INICIAR - Contenedores
       docker_compose:
         project_src: /home/ansible
