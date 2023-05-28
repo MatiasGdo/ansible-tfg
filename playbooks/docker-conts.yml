@@ -3,7 +3,7 @@
   vars:
   # Nodo inicial + numNodos (MariaDB)
     numNodos: 3
-  # Puertos Nodos MariaDB
+  # Puertos Nodos MariaDB.
     puerto: 10000
   become: true
   tasks:
