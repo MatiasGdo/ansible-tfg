@@ -17,6 +17,25 @@
           - python3-pip
         state: latest
         update_cache: true
+    
+    - name: CONFIGURAR - Interfaces de red (bridge02, bridge03)
+      block:
+        - name: "Bridge02"
+          nmcli:
+            conn_name: bridge02
+            ifname: enp0s3
+            ip4: 192.168.2.1/24
+            state: present
+            autoconnect: yes
+            type: ethernet
+        - name: "Bridge03"
+          nmcli:
+            conn_name: bridge03
+            ifname: enp0s3
+            ip4: 192.168.3.1/24
+            state: present
+            autoconnect: yes
+            type: ethernet
 
     - name: AÑADIR - Clave GPG Docker
       rpm_key:
