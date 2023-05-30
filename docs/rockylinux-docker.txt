@@ -1,0 +1,36 @@
+# Descargar RockyLinux
+docker pull rockylinux:9
+
+# Entrar en la shell del contenedor RockyLinux
+docker run -it --name rlinux -d rockylinux:9
+docker exec -it --user root rlinux /bin/bash
+
+# Parar el contenedor
+docker stop rockylinux-mariadb
+
+# Crear una imagen del contenedor detenido:
+docker commit rockylinux-mariadb rocky-linux-mariadb-ansible
+
+# Tras esto se puede usar la imagen en docker-compose:
+# En caso de tener MySQL instalado:
+version: "3.9"
+services:
+  db:
+    image: my-rockylinux-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
+
+# Para pasar la imagen de un host a otro:
+
+# Guardar la imágen en archivo .tar
+docker save mi-imagen -o mi-imagen.tar
+
+# Copiar el archivo .tar por SSH
+scp </ruta/archivo.tar> <usuario>@<IP>:</ruta/destino>
+
+# Cargar imágen
+docker load -i /ruta/archivo.tar
+

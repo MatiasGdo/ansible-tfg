@@ -1,0 +1,84 @@
+version: "3.8"
+services:
+
+    nodo1:
+        image: hauptmedia/mariadb:10.1
+        container_name: nodo1
+        hostname: node1
+        restart: on-failure
+        ports:
+            - 3307:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=test
+            - REPLICATION_PASSWORD=test
+            - MYSQL_DATABASE=matias
+            - MYSQL_USER=matias
+            - MYSQL_PASSWORD=test
+            - GALERA=On
+            - NODE_NAME=nodo1
+            - CLUSTER_NAME=maria_cluster
+            - CLUSTER_ADDRESS=gcomm://
+        command: --wsrep-new-cluster
+        networks:
+            galera_network:
+                ipv4_address: 172.16.0.2
+
+
+        
+    nodo2:
+        image: hauptmedia/mariadb:10.1
+        container_name: nodo2
+        hostname: nodo2
+        restart: on-failure
+        ports:
+            - 3308:3306
+        environment:
+            - REPLICATION_PASSWORD=test
+            - GALERA=On
+            - NODE_NAME=nodo2
+            - CLUSTER_NAME=maria_cluster
+            - CLUSTER_ADDRESS=gcomm://node1
+        networks:
+            galera_network:
+                ipv4_address: 172.16.0.3
+
+
+        
+    nodo3:
+        image: hauptmedia/mariadb:10.1
+        container_name: nodo3
+        hostname: nodo3
+        restart: on-failure
+        ports:
+            - 3309:3306
+        environment:
+            - REPLICATION_PASSWORD=test
+            - GALERA=On
+            - NODE_NAME=nodo3
+            - CLUSTER_NAME=maria_cluster
+            - CLUSTER_ADDRESS=gcomm://node1
+        networks:
+            galera_network:
+                ipv4_address: 172.16.0.4
+
+
+    
+    haproxy:
+        image: haproxy:latest
+        container_name: haproxy
+        restart: on-failure
+        ports:
+            - 3306:3306
+        volumes:
+            - /home/ansible/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+        networks:
+            galera_network:
+                ipv4_address: 172.16.0.50
+    
+networks:
+  galera_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.0/24
+

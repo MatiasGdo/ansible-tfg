@@ -1,0 +1,167 @@
+
+Instalar Galera
+===============
+
+- Quitar MySQL-Server si ya lo tienen
+sudo yum erase mysql-server mysql mysql-devel mysql-libs
+sudo rm -rf /var/lib/mysql
+
+- Añadir los repositorios de MariaDB
+vim /etc/yum.repos.d/mariadb.repo # Escribir lo siguiente dentro del archivo:
+
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.6/centos9-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+- Deshabilitar selinux
+sudo setenforce 0
+
+- Instalar MariaDB Galera Cluster
+sudo yum -y install MariaDB-Galera-Server MariaDB-client rsync galera
+
+- Configurar MariaDB Security
+sudo service mysql start
+sudo /usr/bin/mysql_secure_installation
+
+- Crear Usuario MariaDB Galera Cluster
+mysql -u root -p //mysql root password : dbpass
+GRANT ALL PRIVILEGES ON *.* TO 'cluster-user'@'%' IDENTIFIED BY 'clusterpass' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+exit
+
+service mysql stop
+
+- Configurar MariaDB Galera Cluster galera-db01 ( 172.16.20.10/24 )
+vim /etc/my.cnf.d/server.cnf
+
+[mariadb-10.6]
+query_cache_size=0
+binlog_format=ROW
+default_storage_engine=innodb
+innodb_autoinc_lock_mode=2
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_address="gcomm://172.16.20.10,172.16.20.20,172.16.20.5"
+wsrep_cluster_name='cluster1'
+wsrep_node_address='172.16.20.10'
+wsrep_node_name='galera-db01'
+wsrep_sst_method=rsync
+wsrep_sst_auth=cluster-user:clusterpass
+
+- Iniciar MariaDB Cluster
+[root@galera-db01 ~]# /etc/init.d/mysql bootstrap
+
+- Ver estado galera-db01
+[root@galera-db01 ~]# mysql -u root -p -e "show status like 'wsrep%'"
+
+- Añadir galera-db02 ( nodo 2 ) al Cluster
+[root@galera-db02 ~]# vim /etc/my.cnf.d/server.cnf
+
+[mariadb-10.6]
+query_cache_size=0
+binlog_format=ROW
+default_storage_engine=innodb
+innodb_autoinc_lock_mode=2
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_address="gcomm://172.16.20.10,172.16.20.20,172.16.20.5"
+wsrep_cluster_name='cluster1'
+wsrep_node_address='172.16.20.20'
+wsrep_node_name='galera-db02'
+wsrep_sst_method=rsync
+wsrep_sst_auth=cluster-user:clusterpass
+
+- Iniciar MySQL en galera-db02
+[root@galera-db02 ~]# /etc/init.d/mysql start
+
+- Ver resultado galera-db02
+[root@galera-db02 ~]# mysql -u root -p -e "show status like 'wsrep%'"
+
+- Instalar y configurar Galera Arbitrator en HAProxy server 172.16.20.5/24
+sudo yum erase mysql-server mysql mysql-devel mysql-libs
+sudo rm -rf /var/lib/mysql
+yum -y install galera
+which garbd
+
+Step 14: Startup Galera Arbitrator (garbd) 
+garbd -a gcomm://172.16.20.10:4567 -g cluster1 -l /tmp/1.out -d
+
+Step 15: Testing DB replication
++ On galera-db01 create db and table 
+[root@galera-db01 ~]# mysql -uroot -p
+MariaDB [(none)]> CREATE DATABASE clustertest;
+MariaDB [(none)]> USE clustertest;
+MariaDB [clustertest]> CREATE TABLE employees(number int, name varchar(50));
+MariaDB [clustertest]> INSERT INTO employees values(1,'NGUYEN HOANG NAM');
+MariaDB [clustertest]> SELECT * FROM employees;
+
++ On galera-db02 
+[root@galera-db02 ~]# mysql -uroot -p
+MariaDB [(none)]> USE clustertest;
+MariaDB [clustertest]> SELECT * FROM employees;
+
+Step 16: Power off or kill -9 mysql_pid galera-db01 and on galera-db02 insert value to employees table
+MariaDB [clustertest]> INSERT INTO employees values(2,'LE XUAN LAM');
+Query OK, 1 row affected (0.13 sec)
+
+Step 15: Power on or startup mysql service galera-db01 and checking 
+[root@galera-db02 ~]# mysql -uroot -p
+MariaDB [(none)]> USE clustertest;
+MariaDB [clustertest]> SELECT * FROM employees;
+
+we finished config galera cluster db now we will config haproxy loadbalancer for galera cluster
+
+II. Config haproxy ( loadbalancer ) for cluster db - ip 172.16.20.5/24
+Step 1: install haproxy 
+yum -y install haproxy
+
+Step 2: config haproxy  del all and copy content 
+vim /etc/haproxy/haproxy.cfg 
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    log         127.0.0.1 local2
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+defaults
+    mode                    tcp
+    log                     global
+    option                  dontlognull
+    option                  redispatch
+    retries                 3
+    timeout queue           45s
+    timeout connect         5s
+    timeout client          1m
+    timeout server          1m
+    timeout check           10s
+    maxconn                 3000
+#---------------------------------------------------------------------
+# main frontend which proxys to the backends
+#---------------------------------------------------------------------
+frontend  main *:3306
+    bind 172.16.20.5:3306
+    default_backend             app
+#---------------------------------------------------------------------
+# round robin balancing between the various backends
+#---------------------------------------------------------------------
+backend app
+    balance     roundrobin
+    server  app1 172.16.20.10:3306 maxconn 151 check
+    server  app2 172.16.20.20:3306 maxconn 151 check
+	
+	
+Step 3: Startup haproxy service
+chkconfig haproxy on && service haproxy restart	
+
+Step 4: Checking haproxy loadbalancing for galera cluster 
+[root@haproxy ~]# mysql -u cluster-user -pclusterpass -h 172.16.20.5 -P 3306 -e "select @@hostname";
+
+as we see, the loadbalancer use roundrobin 

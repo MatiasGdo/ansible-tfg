@@ -1,0 +1,9 @@
+Utilizar Notepad++ y Github.
+
+- Instalar Notepad++
+- Instalar Git
+- Configurar Git
+	- git config --global user.name "Nombre"
+	- git config --global user.email "correo@example.com"
+- Crear Repositorio en GitHub
+- Clonar el repositorio

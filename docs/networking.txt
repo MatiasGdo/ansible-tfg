@@ -1,0 +1,32 @@
+nmcli con add type bridge con-name bridge02 ifname bridge02
+nmcli con modify enp0s3 master bridge02
+nmcli con down enp0s3
+nmcli con up enp0s3
+nmcli con modify bridge02 ipv4.method manual ipv4.addresses '192.168.2.1/24'
+nmcli con up bridge02
+#
+# =========================================================================
+#
+1. Bridge
+2. Host
+3. Overlay +
+4. Macvlan +
+
+Crear una red nueva llamada "lan" la cual funciona como la interfaz 
+"enp0s3" la cual es la interfaz de red en la máquina
+
+
+networks:
+	lan:
+		ipv4_address: 192.168.1.101
+
+
+networks:
+	lan:
+		driver: macvlan
+		driver_opts:
+			parent: enp0s3
+		ipam:
+			config:
+			  - subnet: "192.168.1.0/24"
+			    gateway: "192.168.1.1"
