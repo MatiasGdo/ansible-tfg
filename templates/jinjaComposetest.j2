@@ -5,12 +5,16 @@ services:
         image: ubuntu:latest
         container_name: my_ubuntu_container
         networks:
-            macvlan_network:
-                ipv4_address: 192.168.1.102
+            lan:
+                ipv4_address: 192.168.1.101
 
 networks:
-    macvlan_network:
-        driver: macvlan
-        driver_opts:
-            parent: bridge
+	lan:
+		driver: macvlan
+		driver_opts:
+			parent: enp0s3
+		ipam:
+			config:
+			  - subnet: "192.168.1.0/24"
+			    gateway: "192.168.1.1"
     
