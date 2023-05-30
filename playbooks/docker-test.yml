@@ -17,7 +17,12 @@
         src: /home/ansible/.ansible/templates/jinjaComposetest.j2
         dest: /home/ansible/docker-compose.yml
         mode: '0777'
-
+    
+    - name: COPIAR - Dockerfile build imagen
+      ansible.builtin.copy:
+        src: /home/ansible/.ansible/docker/Dockerfile
+        dest: /home/ansible/
+        
     - name: INICIAR - Servicio Docker
       systemd:
         name: docker
