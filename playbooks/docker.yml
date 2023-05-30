@@ -23,19 +23,11 @@
         - name: "Bridge02"
           nmcli:
             conn_name: bridge02
-            ifname: enp0s3
+            ifname: bridge02
             ip4: 192.168.2.1/24
             state: present
             autoconnect: yes
-            type: ethernet
-        - name: "Bridge03"
-          nmcli:
-            conn_name: bridge03
-            ifname: enp0s3
-            ip4: 192.168.3.1/24
-            state: present
-            autoconnect: yes
-            type: ethernet
+            type: bridge
 
     - name: AÑADIR - Clave GPG Docker
       rpm_key:

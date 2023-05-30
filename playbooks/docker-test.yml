@@ -1,10 +1,5 @@
 ---
 - hosts: maquinas_virtuales
-  vars:
-  # Nodo inicial + numNodos (MariaDB)
-    numNodos: 3
-  # Puertos Nodos MariaDB.
-    puerto: 10000
   become: true
   tasks:
 
@@ -17,15 +12,9 @@
     - name: COMPROBACION - Salir de Docker Swarm
       shell: docker swarm leave --force || true
 
-    - name: CREACION - haproxy.cfg  con Jinja2
-      template:
-        src: /home/ansible/.ansible/templates/jinjaHaproxy.j2
-        dest: /home/ansible/haproxy.cfg
-        mode: '0777'
-
     - name: CREACION - docker-compose.yml con Jinja2
       template:
-        src: /home/ansible/.ansible/templates/jinjaCompose.j2
+        src: /home/ansible/.ansible/templates/jinjaComposetest.j2
         dest: /home/ansible/docker-compose.yml
         mode: '0777'
 
@@ -34,7 +23,7 @@
         name: docker
         state: started
 
-    #- name: INICIAR - Contenedores
-    #  docker_compose:
-    #    project_src: /home/ansible
-    #    files: docker-compose.yml
+    - name: INICIAR - Contenedores
+      docker_compose:
+        project_src: /home/ansible
+        files: docker-compose.yml

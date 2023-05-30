@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+
+    ubuntu:
+        image: ubuntu:latest
+        container_name: my_ubuntu_container
+        networks:
+            macvlan_network:
+                ipv4_address: 192.168.1.102
+
+networks:
+    macvlan_network:
+        driver: macvlan
+        driver_opts:
+            parent: bridge
+    
