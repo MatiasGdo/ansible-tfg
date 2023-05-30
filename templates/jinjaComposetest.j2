@@ -1,20 +1,19 @@
 version: "3.8"
-services:
 
-    ubuntu:
-        image: ubuntu:latest
-        container_name: my_ubuntu_container
-        networks:
-            lan:
-                ipv4_address: 192.168.1.101
+services:
+  ubuntu:
+    image: ubuntu:latest
+    container_name: my_ubuntu_container
+    networks:
+      lan:
+        ipv4_address: 192.168.1.101
 
 networks:
-    lan:
-        driver: macvlan
-        driver_opts:
-            parent: enp0s3
-        ipam:
-            config:
-                - subnet: "192.168.1.0/24"
-                gateway: "192.168.1.1"
-
+  lan:
+    driver: macvlan
+    driver_opts:
+      parent: enp0s3
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
