@@ -3,18 +3,20 @@ version: "3.8"
 services:
   ubuntu:
     build:
-      context: /home/ansible/.ansible/docker/Dockerfile
+      context: /home/ansible
+      dockerfile: Dockerfile
     container_name: host1
     networks:
-      lan:
+      mariadb:
+        ipv4_address: 192.168.1.150
     command: sleep infinity
 
 networks:
-  lan:
+  mariadb:
     driver: macvlan
     driver_opts:
-      parent: bridge
+      parent: enp0s3
     ipam:
       config:
-        - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
+        - subnet: "192.168.1.0/24"
+          gateway: "192.168.1.1"
