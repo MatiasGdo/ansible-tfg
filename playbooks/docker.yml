@@ -1,9 +1,10 @@
-- name: Instalar Docker
+- name: PREPARAR_HOSTS
   hosts: maquinas_virtuales
   become: true
   become_user: root
   tasks:
 
+  # INSTALAR DEPENDENCIAS
     - name: INSTALAR - Repositorio EPEL
       dnf:
         name:
@@ -17,18 +18,47 @@
           - python3-pip
         state: latest
         update_cache: true
-    
-    - name: CONFIGURAR - Interfaces de red (bridge02, bridge03)
+  
+  # NETWORKING
+    - name: CREAR - interfaz Bridge02
       block:
-        - name: "Bridge02"
-          nmcli:
-            conn_name: bridge02
-            ifname: bridge02
-            ip4: 192.168.2.1/24
-            state: present
-            autoconnect: yes
-            type: bridge
+        - name: CREAR - Bridge02
+          community.general.nmcli:
+            cmd: "connection add type macvlan con-name bridge02 ifname bridge02 mode bridge master enp0s3"
+            wait_for_connection: yes
+        - name: ASIGNAR - Direccion IP a Bridge02
+          community.general.nmcli:
+            cmd: "connection modify bridge02 ipv4.addresses 192.168.2.50/24"
+            wait_for_connection: yes
+        - name: LEVANTAR - Bridge02
+          community.general.nmcli:
+            cmd: "connection up bridge02"
+            wait_for_connection: yes
+        - name: Añadir ruta a la tabla de enrutamiento
+          community.general.nmcli:
+            cmd: "connection modify bridge02 ipv4.routes '192.168.2.0/24'"
+            wait_for_connection: yes
 
+    - name: CREAR - interfaz Bridge03
+      block:
+        - name: CREAR - Bridge03
+          community.general.nmcli:
+            cmd: "connection add type macvlan con-name bridge03 ifname bridge03 mode bridge master enp0s3"
+            wait_for_connection: yes
+        - name: ASIGNAR - Direccion IP a Bridge03
+          community.general.nmcli:
+            cmd: "connection modify bridge03 ipv4.addresses 192.168.3.50/24"
+            wait_for_connection: yes
+        - name: LEVANTAR - Bridge03
+          community.general.nmcli:
+            cmd: "connection up bridge03"
+            wait_for_connection: yes
+        - name: AÑADIR - Bridge03 a tabla de enrutamiento
+          community.general.nmcli:
+            cmd: "connection modify bridge03 ipv4.routes '192.168.3.0/24'"
+            wait_for_connection: yes
+
+  # DOCKER
     - name: AÑADIR - Clave GPG Docker
       rpm_key:
         key: https://download.docker.com/linux/centos/gpg
