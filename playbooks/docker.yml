@@ -28,7 +28,7 @@
             state: present
             type: macvlan
             ifname: bridge02
-            mode: bridge
+            mode: 2
             master: enp0s3        
         - name: ASIGNAR - Direccion IP a Bridge02
           community.general.nmcli:
@@ -55,7 +55,7 @@
             state: present
             type: macvlan
             ifname: bridge03
-            mode: bridge
+            mode: 2
             master: enp0s3        
         - name: ASIGNAR - Direccion IP a Bridge03
           community.general.nmcli:
