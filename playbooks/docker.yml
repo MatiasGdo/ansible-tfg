@@ -26,20 +26,26 @@
           community.general.nmcli:
             conn_name: bridge02
             state: present
-            cmd: "connection add type macvlan con-name bridge02 ifname bridge02 mode bridge master enp0s3"
-            wait_for_connection: yes
+            type: macvlan
+            ifname: bridge02
+            mode: bridge
+            master: enp0s3        
         - name: ASIGNAR - Direccion IP a Bridge02
           community.general.nmcli:
-            cmd: "connection modify bridge02 ipv4.addresses 192.168.2.50/24"
-            wait_for_connection: yes
+            conn_name: bridge02
+            state: present
+            ipv4:
+              addresses: ['192.168.2.50/24']
         - name: LEVANTAR - Bridge02
           community.general.nmcli:
-            cmd: "connection up bridge02"
-            wait_for_connection: yes
+            conn_name: bridge02
+            state: up
         - name: Añadir ruta a la tabla de enrutamiento
           community.general.nmcli:
-            cmd: "connection modify bridge02 ipv4.routes '192.168.2.0/24'"
-            wait_for_connection: yes
+            conn_name: bridge02
+            state: present
+            ipv4:
+              routes: ['192.168.2.0/24']
 
     - name: CREAR - interfaz Bridge03
       block:
@@ -47,20 +53,26 @@
           community.general.nmcli:
             conn_name: bridge03
             state: present
-            cmd: "connection add type macvlan con-name bridge03 ifname bridge03 mode bridge master enp0s3"
-            wait_for_connection: yes
+            type: macvlan
+            ifname: bridge03
+            mode: bridge
+            master: enp0s3        
         - name: ASIGNAR - Direccion IP a Bridge03
           community.general.nmcli:
-            cmd: "connection modify bridge03 ipv4.addresses 192.168.3.50/24"
-            wait_for_connection: yes
+            conn_name: bridge03
+            state: present
+            ipv4:
+              addresses: ['192.168.3.50/24']
         - name: LEVANTAR - Bridge03
           community.general.nmcli:
-            cmd: "connection up bridge03"
-            wait_for_connection: yes
-        - name: AÑADIR - Bridge03 a tabla de enrutamiento
+            conn_name: bridge03
+            state: up
+        - name: Añadir ruta a la tabla de enrutamiento
           community.general.nmcli:
-            cmd: "connection modify bridge03 ipv4.routes '192.168.3.0/24'"
-            wait_for_connection: yes
+            conn_name: bridge03
+            state: present
+            ipv4:
+              routes: ['192.168.3.0/24']
 
   # DOCKER
     - name: AÑADIR - Clave GPG Docker
