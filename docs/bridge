@@ -1,0 +1,14 @@
+INDEPENDIENTEMENTE DE DOCKER, NMCLI INTERFACES.
+
+NetworkManger -> Bridge (bridge02) -> 192.168.2.1/24 -> Vincular a enp0s3, nmcli
+
+Configurar docker para usar bridge ya existente (bridge01), asignar IPs fijas a contenedores.
+
+haproxy		-	192.168.2.2
+webserver	-	192.168.2.3
+
+Bridge (bridge03) -> 192.168.3.1/24
+nodo1		-	192.168.3.10
+nodo2		-	192.168.3.11
+nodo3		-	192.168.3.12
+haproxy		-	192.168.3.2

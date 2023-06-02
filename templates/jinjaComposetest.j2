@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  alpine:
+    image: alpine:latest
+    command: /bin/sh
+    networks:
+      - bridge
+
+networks:
+  bridge:
+    external: true
+
+
