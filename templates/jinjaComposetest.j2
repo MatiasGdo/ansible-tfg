@@ -4,16 +4,10 @@ services:
     image: alpine:latest
     command: /bin/sh
     networks:
-      matias01:
-        ipv4_address: 192.168.1.151
+      - bridge
+
 networks:
-  matias01:
-    name:
-    driver: macvlan
-    driver_opts:
-      parent: enp0s3
-    ipam:
-      config:
-        - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
+  bridge:
+    external: true
+
 

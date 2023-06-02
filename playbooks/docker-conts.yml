@@ -14,9 +14,6 @@
     - name: COMPROBACION - Eliminar redes antiguas.
       shell: docker network prune -f  || true
 
-    - name: COMPROBACION - Salir de Docker Swarm
-      shell: docker swarm leave --force || true
-
     - name: CREACION - haproxy.cfg  con Jinja2
       template:
         src: /home/ansible/.ansible/templates/jinjaHaproxy.j2
