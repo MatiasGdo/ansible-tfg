@@ -23,56 +23,24 @@
     - name: CREAR - interfaz Bridge02
       block:
         - name: CREAR - Bridge02
-          community.general.nmcli:
-            conn_name: bridge02
-            state: present
-            type: macvlan
-            ifname: bridge02
-            mode: 2
-            master: enp0s3        
+          shell: ip link add bridge02 link enp0s3 type macvlan mode bridge
         - name: ASIGNAR - Direccion IP a Bridge02
-          community.general.nmcli:
-            conn_name: bridge02
-            state: present
-            ipv4:
-              addresses: ['192.168.2.50/24']
+          shell: ip addr add 192.168.2.50/24 dev bridge02
         - name: LEVANTAR - Bridge02
-          community.general.nmcli:
-            conn_name: bridge02
-            state: up
+          shell: ip link set bridge02 up
         - name: Añadir ruta a la tabla de enrutamiento
-          community.general.nmcli:
-            conn_name: bridge02
-            state: present
-            ipv4:
-              routes: ['192.168.2.0/24']
+          shell: ip route add 192.168.2.0/24 dev bridge02 || true
 
     - name: CREAR - interfaz Bridge03
       block:
         - name: CREAR - Bridge03
-          community.general.nmcli:
-            conn_name: bridge03
-            state: present
-            type: macvlan
-            ifname: bridge03
-            mode: 2
-            master: enp0s3        
+          shell: ip link add bridge03 link enp0s3 type macvlan mode bridge
         - name: ASIGNAR - Direccion IP a Bridge03
-          community.general.nmcli:
-            conn_name: bridge03
-            state: present
-            ipv4:
-              addresses: ['192.168.3.50/24']
+          shell: ip addr add 192.168.3.50/24 dev bridge03
         - name: LEVANTAR - Bridge03
-          community.general.nmcli:
-            conn_name: bridge03
-            state: up
+          shell: ip link set bridge03 up
         - name: Añadir ruta a la tabla de enrutamiento
-          community.general.nmcli:
-            conn_name: bridge03
-            state: present
-            ipv4:
-              routes: ['192.168.3.0/24']
+          shell: ip route add 192.168.3.0/24 dev bridge03 || true
 
   # DOCKER
     - name: AÑADIR - Clave GPG Docker
@@ -101,23 +69,3 @@
       block:
         - name: Iniciar Docker
           shell: systemctl start docker
-
-    - name: CREAR - Networks Docker
-      block:
-        - name: CREAR - Bridge02 containers
-          community.docker.docker_network:
-            name: bridge02
-            driver: macvlan
-            driver_options:
-              parent: bridge02
-            ipam_options:
-              subnet: 192.168.2.0/24
-
-        - name: CREAR - Bridge03 containers
-          community.docker.docker_network:
-            name: bridge03
-            driver: macvlan
-            driver_options:
-              parent: bridge03
-            ipam_options:
-              subnet: 192.168.3.0/24

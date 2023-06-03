@@ -24,11 +24,10 @@ frontend galera_frontend
 backend galera_backend
     mode tcp
     balance roundrobin
-    option mysql-check user matias
 {% if numNodos > 0 %}
-    server nodo1 nodo1:{{ puerto + 1 }} check
+    server nodo1 192.168.2.101:{{ puerto + 1 }} check
     {% for i in range(2, numNodos + 1) -%}  
-    server nodo{{ i }} nodo{{ i }}:{{ puerto + i }} check  
+    server nodo{{ i }} 192.168.56.{{ 100 + i }}:{{ puerto + i }} check  
     {% endfor %}
 
 {% else %}

@@ -21,8 +21,8 @@ services:
             - CLUSTER_ADDRESS=gcomm://
         command: --wsrep-new-cluster
         networks:
-            galera_network:
-                ipv4_address: 172.16.0.2
+            bridge02:
+                ipv4_address: 192.168.2.101
 
 
     {% for i in range(2, numNodos + 1) %}
@@ -43,8 +43,8 @@ services:
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://node1
         networks:
-            galera_network:
-                ipv4_address: 172.16.0.{{ i + 1 }}
+            bridge02:
+                ipv4_address: 192.168.2.{{ 100 + i }}
 
 
     {% endfor %}
@@ -53,20 +53,48 @@ services:
         image: haproxy:latest
         container_name: haproxy
         restart: on-failure
+        depends_on:
+          - nodo1
+          {% for i in range(2, numNodos + 1) -%}  
+          - nodo{{ i }}
+          {% endfor %}
+        
         ports:
             - 3306:3306
         volumes:
             - /home/ansible/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
         networks:
-            galera_network:
-                ipv4_address: 172.16.0.50
+            bridge02:
+                ipv4_address: 192.168.2.10
+            bridge03:
+                ipv4_address: 192.168.3.10
+      
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        restart: on-failure
+        depends_on:
+          - haproxy
+        ports:
+          - 80:80
+        volumes:
+          - ./nginx.conf:/etc/nginx/nginx.conf
     
 networks:
-  galera_network:
+  bridge02:
+    driver: macvlan
+    driver_opts:
+      parent: bridge02
     ipam:
-      driver: default
       config:
-        - subnet: 172.16.0.0/24
+        - subnet: 192.168.2.0/24
+  bridge03:
+    driver: macvlan
+    driver_opts:
+      parent: bridge03
+    ipam:
+      config:
+        - subnet: 192.168.3.0/24
 
 {% else %}
     # ERROR: La cantidad de contenedores debe de ser numérica y mayor a 0.

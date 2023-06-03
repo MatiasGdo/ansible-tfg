@@ -25,6 +25,12 @@
         src: /home/ansible/.ansible/templates/jinjaCompose.j2
         dest: /home/ansible/docker-compose.yml
         mode: '0777'
+    
+    - name: CREACION - nginx.conf con Jinja2
+      template:
+        src: /home/ansible/.ansible/templates/jinjaHaproxy.j2
+        dest: /home/ansible/nginx.conf
+        mode: '0777'
 
     - name: INICIAR - Servicio Docker
       systemd:
