@@ -105,6 +105,9 @@ networks:
     ipam:
       config:
         - subnet: 192.168.3.0/24
+  frontend:
+    external:
+      name: enp0s3
 
 {% else %}
     # ERROR: La cantidad de contenedores debe de ser numérica y mayor a 0.
