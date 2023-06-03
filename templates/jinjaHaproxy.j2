@@ -17,17 +17,16 @@ defaults
 frontend galera_frontend
     bind *:3306
     mode tcp
-    option mysql-check user matias
-
     default_backend galera_backend
 
 backend galera_backend
     mode tcp
     balance roundrobin
+    option tcp-check
 {% if numNodos > 0 %}
-    server nodo1 192.168.2.101:{{ puerto + 1 }} check
+    server nodo1 192.168.2.101:3306 check
     {% for i in range(2, numNodos + 1) -%}  
-    server nodo{{ i }} 192.168.56.{{ 100 + i }}:{{ puerto + i }} check  
+    server nodo{{ i }} 192.168.2.{{ 100 + i }}:3306 check  
     {% endfor %}
 
 {% else %}

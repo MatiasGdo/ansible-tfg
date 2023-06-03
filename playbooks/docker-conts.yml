@@ -37,7 +37,7 @@
         name: docker
         state: started
 
-    #- name: INICIAR - Contenedores
-    #  docker_compose:
-    #    project_src: /home/ansible
-    #    files: docker-compose.yml
+    - name: INICIAR - Contenedores
+      docker_compose:
+        project_src: /home/ansible
+        files: docker-compose.yml
