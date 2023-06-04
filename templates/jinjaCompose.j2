@@ -55,9 +55,13 @@ services:
           - nodo1
           {% for i in range(2, numNodos + 1) -%}  
           - nodo{{ i }}
-          {% endfor %}      
+          {% endfor %}
+        ports:
+          - "80:80"
+          - "1936:1936"
+          - "3306:3306"        
         volumes:
-            - /home/ansible/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+          - /home/ansible/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
         networks:
             bridge02:
                 ipv4_address: 192.168.2.10
