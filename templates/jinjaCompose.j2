@@ -20,6 +20,8 @@ services:
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://
         command: --wsrep-new-cluster
+        volumes:
+            - nodo1_data:/var/lib/mysql
         networks:
             bridge02:
                 ipv4_address: 192.168.2.101
@@ -40,6 +42,8 @@ services:
             - NODE_NAME=nodo{{ i }}
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://node1
+        volumes:
+            - nodo{{ i }}_data:/var/lib/mysql
         networks:
             bridge02:
                 ipv4_address: 192.168.2.{{ 100 + i }}
@@ -89,6 +93,8 @@ services:
           bridge03:
             ipv4_address: 192.168.3.20
 
+volumes:
+  wp_data:
             
 networks:
   bridge02:
@@ -106,8 +112,12 @@ networks:
       config:
         - subnet: 192.168.3.0/24
   frontend:
-    external:
-      name: enp0s3
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
 
 {% else %}
     # ERROR: La cantidad de contenedores debe de ser numérica y mayor a 0.
