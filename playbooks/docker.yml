@@ -19,29 +19,6 @@
         state: latest
         update_cache: true
   
-  # NETWORKING
-    - name: CREAR - interfaz Bridge02
-      block:
-        - name: CREAR - Bridge02
-          shell: ip link add bridge02 link enp0s3 type macvlan mode bridge
-        - name: ASIGNAR - Direccion IP a Bridge02
-          shell: ip addr add 192.168.2.50/24 dev bridge02
-        - name: LEVANTAR - Bridge02
-          shell: ip link set bridge02 up
-        - name: Añadir ruta a la tabla de enrutamiento
-          shell: ip route add 192.168.2.0/24 dev bridge02 || true
-
-    - name: CREAR - interfaz Bridge03
-      block:
-        - name: CREAR - Bridge03
-          shell: ip link add bridge03 link enp0s3 type macvlan mode bridge
-        - name: ASIGNAR - Direccion IP a Bridge03
-          shell: ip addr add 192.168.3.50/24 dev bridge03
-        - name: LEVANTAR - Bridge03
-          shell: ip link set bridge03 up
-        - name: Añadir ruta a la tabla de enrutamiento
-          shell: ip route add 192.168.3.0/24 dev bridge03 || true
-
   # FIREWALL
     - name: ABRIR - Puerto 3306 para MariaDB
       firewalld:
