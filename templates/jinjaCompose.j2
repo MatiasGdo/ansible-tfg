@@ -12,16 +12,14 @@ services:
         environment:
             - MYSQL_ROOT_PASSWORD=test
             - REPLICATION_PASSWORD=test
-            - MYSQL_DATABASE=matias
-            - MYSQL_USER=matias
+            - MYSQL_DATABASE=wordpress
+            - MYSQL_USER=root
             - MYSQL_PASSWORD=test
             - GALERA=On
             - NODE_NAME=nodo1
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://
         command: --wsrep-new-cluster
-        volumes:
-            - nodo1_data:/var/lib/mysql
         networks:
             bridge02:
                 ipv4_address: 192.168.2.101
@@ -42,8 +40,6 @@ services:
             - NODE_NAME=nodo{{ i }}
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://node1
-        volumes:
-            - nodo{{ i }}_data:/var/lib/mysql
         networks:
             bridge02:
                 ipv4_address: 192.168.2.{{ 100 + i }}
@@ -77,7 +73,7 @@ services:
         image: wordpress:latest
         container_name: wordpress
         ports:
-          - "8080:80"
+          - "8081:80"
         environment:
           - WORDPRESS_DB_HOST=haproxy:3306
           - WORDPRESS_DB_USER=root
@@ -87,7 +83,6 @@ services:
           - wp_data:/var/www/html
         networks:
           frontend:
-            ipv4_address: 192.168.1.150
           bridge02:
             ipv4_address: 192.168.2.20
           bridge03:
@@ -112,13 +107,6 @@ networks:
       config:
         - subnet: 192.168.3.0/24
   frontend:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
-
 {% else %}
     # ERROR: La cantidad de contenedores debe de ser numérica y mayor a 0.
 {% endif %}
