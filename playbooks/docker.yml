@@ -42,6 +42,25 @@
         - name: Añadir ruta a la tabla de enrutamiento
           shell: ip route add 192.168.3.0/24 dev bridge03 || true
 
+  # FIREWALL
+    - name: ABRIR - Puerto 3306 para MariaDB
+      firewalld:
+        port: 3306/tcp
+        permanent: yes
+        state: enabled
+
+    - name: ABRIR - Puerto 80 para HTTP
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+
+    - name: ABRIR - Puerto 8080
+      firewalld:
+        port: 8080/tcp
+        permanent: yes
+        state: enabled
+
   # DOCKER
     - name: AÑADIR - Clave GPG Docker
       rpm_key:
