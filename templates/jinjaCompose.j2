@@ -17,7 +17,7 @@ services:
             - NODE_NAME=nodo1
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://
-        command: service mysql start --wsrep_new_cluster
+        command: --wsrep_new_cluster
         networks:
             bridge02:
                 ipv4_address: 192.168.2.101
@@ -100,4 +100,3 @@ networks:
 {% else %}
     # ERROR: La cantidad de contenedores debe de ser numérica y mayor a 0.
 {% endif %}
-
