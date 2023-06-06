@@ -1,11 +1,18 @@
-http {
-    server {
-        listen 80;
-        server_name localhost;
-        location / {
-            root /usr/share/nginx/html;
-            index index.html;
-        }
-    }
-}
+events {}
 
+http {
+  upstream mariadb {
+    server nodo1:3306;
+    server nodo2:3306;
+    server nodo3:3306;
+  }
+
+  server {
+    listen 3306;
+    server_name localhost;
+
+    location / {
+      proxy_pass mariadb;
+    }
+  }
+}

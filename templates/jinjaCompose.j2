@@ -7,8 +7,6 @@ services:
         container_name: nodo1
         hostname: node1
         restart: on-failure
-        #ports:
-        #    - {{ puerto + 1}}:3306
         environment:
             - MYSQL_ROOT_PASSWORD=test
             - REPLICATION_PASSWORD=test
@@ -19,7 +17,7 @@ services:
             - NODE_NAME=nodo1
             - CLUSTER_NAME=maria_cluster
             - CLUSTER_ADDRESS=gcomm://
-        command: --wsrep-new-cluster
+        command: --wsrep_new_cluster
         networks:
             bridge02:
                 ipv4_address: 192.168.2.101
@@ -32,8 +30,6 @@ services:
         container_name: nodo{{ i }}
         hostname: nodo{{ i }}
         restart: on-failure
-        #ports:
-        #    - {{ puerto + i }}:3306
         environment:
             - REPLICATION_PASSWORD=test
             - GALERA=On
@@ -56,17 +52,17 @@ services:
           {% for i in range(2, numNodos + 1) -%}  
           - nodo{{ i }}
           {% endfor %}
+          
         ports:
-          - "80:80"
-          - "1936:1936"
-          - "3306:3306"        
+          - 80:80
+          - 1936:1936
+          - 3306:3306
         volumes:
           - /home/ansible/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
         networks:
+            frontend:
             bridge02:
                 ipv4_address: 192.168.2.10
-            bridge03:
-                ipv4_address: 192.168.3.10
       
     wordpress:
         depends_on:
@@ -77,7 +73,7 @@ services:
         image: wordpress:latest
         container_name: wordpress
         ports:
-          - "8080:80"
+          - 8080:80
         environment:
           - WORDPRESS_DB_HOST=haproxy:3306
           - WORDPRESS_DB_USER=root
@@ -89,29 +85,18 @@ services:
           frontend:
           bridge02:
             ipv4_address: 192.168.2.20
-          bridge03:
-            ipv4_address: 192.168.3.20
 
 volumes:
   wp_data:
             
 networks:
   bridge02:
-    driver: macvlan
-    driver_opts:
-      parent: bridge02
+    driver: bridge
     ipam:
       config:
         - subnet: 192.168.2.0/24
-  bridge03:
-    driver: macvlan
-    driver_opts:
-      parent: bridge03
-    ipam:
-      config:
-        - subnet: 192.168.3.0/24
   frontend:
+
 {% else %}
     # ERROR: La cantidad de contenedores debe de ser numérica y mayor a 0.
 {% endif %}
-
