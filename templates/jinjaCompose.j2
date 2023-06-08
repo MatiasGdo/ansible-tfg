@@ -8,6 +8,7 @@ services:
         hostname: node1
         restart: on-failure
         environment:
+            - TIMEZONE=Europe/Madrid
             - MYSQL_ROOT_PASSWORD=test
             - REPLICATION_PASSWORD=test
             - MYSQL_DATABASE=wordpress
@@ -16,7 +17,8 @@ services:
             - GALERA=On
             - NODE_NAME=nodo1
             - CLUSTER_NAME=maria_cluster
-            - CLUSTER_ADDRESS=gcomm://
+            - CLUSTER_ADDRESS=gcomm://{% for i in range(1, numNodos + 1) %}nodo{{ i }}{% if not loop.last %},{% endif %}{% endfor %}
+        
         command: --wsrep_new_cluster
         networks:
             bridge02:
@@ -31,11 +33,15 @@ services:
         hostname: nodo{{ i }}
         restart: on-failure
         environment:
+            - TIMEZONE=Europe/Madrid
+            - MYSQL_ROOT_PASSWORD=test
             - REPLICATION_PASSWORD=test
+            - MYSQL_USER=root
             - GALERA=On
             - NODE_NAME=nodo{{ i }}
             - CLUSTER_NAME=maria_cluster
-            - CLUSTER_ADDRESS=gcomm://nodo1
+            - CLUSTER_ADDRESS=gcomm://{% for i in range(1, numNodos + 1) %}nodo{{ i }}{% if not loop.last %},{% endif %}{% endfor %}
+        
         networks:
             bridge02:
                 ipv4_address: 192.168.2.{{ 100 + i }}
